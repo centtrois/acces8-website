@@ -6,8 +6,23 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>centrois — portal</title>
   <link rel="stylesheet" href="assets/portal.css" />
+  <style>
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background: url('assets/hero.jpg') center center / cover no-repeat;
+      filter: brightness(0.6) contrast(1.1);
+      animation: drift 20s ease-in-out infinite;
+    }
+    @keyframes drift {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+  </style>
 </head>
 <body>
+  <div class="hero-bg"></div>
   <div id="psy-bg"></div>
   <div id="psy-noise"></div>
 
@@ -24,14 +39,14 @@
     <div class="portal-grid">
 
       <a href="airheads/" class="portal-card">
-        <h2>Airheads</h2>
-        <p>Airmat surfing project — inflatable craft, DIY waves.</p>
+        <h2 class="card-title">Airheads</h2>
+        <p>1-of-1 art surf mats. Custom craft, unique visions, available for sale.</p>
         <span class="arrow">⟶</span>
       </a>
 
       <a href="works/" class="portal-card">
-        <h2>Works</h2>
-        <p>Main portfolio hub — all visual work, all media.</p>
+        <h2 class="card-title">Works</h2>
+        <p>Main portfolio hub — boarding, mixed media, and ponderings.</p>
         <span class="arrow">⟶</span>
       </a>
 
