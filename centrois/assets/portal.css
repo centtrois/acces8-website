@@ -68,7 +68,7 @@ nav a:hover { opacity: 0.6; }
 .hero-bg {
   position: fixed;
   inset: 0;
-  z-index: -3;
+  z-index: 0;
   overflow: hidden;
 }
 
@@ -78,8 +78,17 @@ nav a:hover { opacity: 0.6; }
   object-fit: cover;
   object-position: center;
   display: block;
-  filter: brightness(0.6) saturate(0.8) contrast(1.1);
 }
+
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* hide default gradient when hero image is present */
+#psy-bg { display: none; }
 
 /* ── Page Layout ── */
 .page {
