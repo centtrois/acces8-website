@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /centrois/
 
 Sitemap: https://acces8.ca/sitemap.xml
