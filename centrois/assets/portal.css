@@ -48,6 +48,8 @@ body {
 
 /* ── Nav ── */
 nav {
+  position: relative;
+  z-index: 10;
   display: flex;
   justify-content: space-between;
   padding: 20px 40px;
@@ -92,6 +94,8 @@ nav a:hover { opacity: 0.6; }
 
 /* ── Page Layout ── */
 .page {
+  position: relative;
+  z-index: 10;
   max-width: 900px;
   margin: 60px auto;
   padding: 0 40px;
@@ -224,6 +228,8 @@ p {
 
 /* ── Footer ── */
 footer {
+  position: relative;
+  z-index: 10;
   padding: 60px 40px;
   display: flex;
   justify-content: center;
