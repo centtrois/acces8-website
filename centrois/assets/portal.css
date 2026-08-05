@@ -1,4 +1,4 @@
-/* 
+/*
   Centrois Portal CSS — Psychedelic/Dark Mode
   Base style for the hidden art portal
 */
@@ -6,44 +6,47 @@
 :root {
   --bg: #0a0a0a;
   --fg: #faf8f3;
-  --accent: #ff00ff; 
+  --accent: #ff00ff;
   --accent-alt: #00ffff;
   --dim: rgba(250, 248, 243, 0.6);
   --mono: 'PT Mono', monospace;
 }
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--mono);
-  margin: 0;
   overflow-x: hidden;
   line-height: 1.6;
 }
 
-/* ── Psy Background & Noise ── */
-#psy-bg {
+/* ── Hero Background Image (full viewport, behind everything) ── */
+.hero-bg {
   position: fixed;
   inset: 0;
-  z-index: -2;
-  background: linear-gradient(45deg, #0a0a0a, #1a0a1a, #0a1a0a, #0a0a0a);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-}
-
-#psy-noise {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background: url('https://grainy-gradients.vercel.app/noise.svg');
-  opacity: 0.05;
+  z-index: 0;
+  overflow: hidden;
   pointer-events: none;
 }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  filter: brightness(0.5) saturate(0.85) contrast(1.1);
+}
+
+/* Dark overlay on top of image for text readability */
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%);
+  pointer-events: none;
 }
 
 /* ── Nav ── */
@@ -66,40 +69,18 @@ nav a {
 
 nav a:hover { opacity: 0.6; }
 
-/* ── Hero Background Image ── */
-.hero-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-}
-
-.hero-bg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-}
-
-.hero-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-}
-
-/* hide default gradient when hero image is present */
-#psy-bg { display: none; }
-
 /* ── Page Layout ── */
 .page {
   position: relative;
   z-index: 10;
   max-width: 900px;
-  margin: 60px auto;
-  padding: 0 40px;
+  margin: 0 auto;
+  padding: 80px 40px 120px;
   text-align: center;
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .label {
@@ -115,15 +96,17 @@ h1 {
   font-size: 64px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   position: relative;
+  text-shadow: 0 4px 30px rgba(0,0,0,0.8);
 }
 
-p {
+.page > p {
   font-size: 14px;
   color: var(--dim);
   max-width: 600px;
   margin: 0 auto 60px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
 }
 
 /* ── Glitch Effect ── */
@@ -142,7 +125,7 @@ p {
 .glitch::before {
   color: var(--accent);
   z-index: -1;
-  animation: glitch 0.3s cubic-bezier(.25, .46, 4parseFloat, .98) infinite;
+  animation: glitch 0.3s cubic-bezier(.25, .46, 4, .98) infinite;
 }
 
 .glitch::after {
@@ -169,8 +152,10 @@ p {
 }
 
 .portal-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(250,248,243,0.08);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(250, 248, 243, 0.15);
   padding: 40px;
   text-decoration: none;
   color: var(--fg);
@@ -182,10 +167,10 @@ p {
 }
 
 .portal-card:hover {
-  background: rgba(255,255,255,0.07);
+  background: rgba(0, 0, 0, 0.7);
   border-color: var(--accent);
   transform: translateY(-10px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
 }
 
 .portal-card h2 {
@@ -230,7 +215,7 @@ p {
 footer {
   position: relative;
   z-index: 10;
-  padding: 60px 40px;
+  padding: 40px;
   display: flex;
   justify-content: center;
   gap: 40px;
@@ -250,4 +235,5 @@ footer a:hover { color: var(--fg); }
 @media (max-width: 768px) {
   h1 { font-size: 42px; }
   .portal-grid { grid-template-columns: 1fr; }
+  .page { padding: 60px 24px 80px; }
 }
