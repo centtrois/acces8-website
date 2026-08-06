@@ -97,6 +97,7 @@ html, body {
   cursor: pointer;
   width: 200px; height: 200px;
   border-radius: 50%;
+  overflow: hidden;
   background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.10), rgba(255,255,255,0.02) 60%);
   border: 1px solid rgba(240,230,216,0.18);
   backdrop-filter: blur(10px);
@@ -107,6 +108,32 @@ html, body {
     0 0 40px rgba(255,42,109,0.06);
   transition: transform 0.5s cubic-bezier(0.22,1,0.36,1), box-shadow 0.5s ease, border-color 0.5s ease;
 }
+/* Slowly-cycling spectrum gradient behind the glass */
+.bubble::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  z-index: 0;
+  background: linear-gradient(
+    120deg,
+    hsl(0,80%,55%), hsl(30,85%,55%), hsl(60,85%,55%),
+    hsl(120,80%,55%), hsl(180,85%,55%), hsl(240,85%,55%),
+    hsl(300,85%,55%), hsl(0,80%,55%)
+  );
+  background-size: 300% 300%;
+  animation: spectrum 18s linear infinite;
+  opacity: 0.5;
+  pointer-events: none;
+}
+@keyframes spectrum {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+/* Keep text readable above the gradient */
+.bubble .label, .bubble .sub {
+  position: relative;
+  z-index: 2;
+}
 .bubble::after {
   content: '';
   position: absolute;
@@ -116,6 +143,7 @@ html, body {
   background: rgba(255,255,255,0.14);
   filter: blur(2px);
   pointer-events: none;
+  z-index: 3;
 }
 .bubble:hover {
   transform: scale(1.1);
