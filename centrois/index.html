@@ -108,26 +108,15 @@ html, body {
     0 0 40px rgba(255,42,109,0.06);
   transition: transform 0.5s cubic-bezier(0.22,1,0.36,1), box-shadow 0.5s ease, border-color 0.5s ease;
 }
-/* Slowly-cycling spectrum gradient behind the glass */
+/* Magenta/violet glow behind the glass */
 .bubble::before {
   content: '';
   position: absolute;
   inset: -50%;
   z-index: 0;
-  background: linear-gradient(
-    120deg,
-    hsl(0,80%,55%), hsl(30,85%,55%), hsl(60,85%,55%),
-    hsl(120,80%,55%), hsl(180,85%,55%), hsl(240,85%,55%),
-    hsl(300,85%,55%), hsl(0,80%,55%)
-  );
-  background-size: 300% 300%;
-  animation: spectrum 18s linear infinite;
-  opacity: 0.5;
+  background: radial-gradient(circle at 50% 50%, rgba(255,42,109,0.6), rgba(123,47,247,0.35) 55%, transparent 80%);
+  opacity: 0.45;
   pointer-events: none;
-}
-@keyframes spectrum {
-  0%   { background-position: 0% 50%; }
-  100% { background-position: 300% 50%; }
 }
 /* Keep text readable above the gradient */
 .bubble .label, .bubble .sub {
