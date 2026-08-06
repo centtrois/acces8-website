@@ -4,17 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="robots" content="noindex, nofollow">
-<title>centrois — Zoom Board</title>
+<title>centrois</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Special+Elite&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
 
 :root {
-  --bg: #1a1612;
-  --paper: #f4efe6;
-  --ink: #2a221b;
-  --accent-magenta: #d946ef;
-  --accent-cyan: #06b6d4;
-  --dim: #8a7e72;
+  --magenta: #ff2a6d;
+  --cyan: #05d9e8;
+  --amber: #ffc857;
+  --ink: #0d0a09;
+  --cream: #f0e6d8;
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -22,17 +21,49 @@
 html, body {
   width:100%; height:100%;
   overflow:hidden;
-  background: var(--bg);
-  font-family: 'Patrick Hand', cursive;
-  color: var(--ink);
+  background: var(--ink);
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--cream);
   -webkit-user-select: none; user-select: none;
 }
 
-/* ── Canvas (infinite zoom plane) ── */
-#canvas {
+/* ── Background ── */
+#bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: url('assets/IMG_1771.jpeg') center/cover no-repeat;
+  filter: brightness(0.25) saturate(0.4) contrast(1.2) blur(1px);
+}
+
+#bg::after {
+  content: '';
   position: absolute;
-  top:0; left:0;
-  width:100%; height:100%;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(13,10,9,0.85) 70%, var(--ink) 100%);
+}
+
+/* ── Animated Grain ── */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  animation: drift 8s linear infinite;
+}
+@keyframes drift {
+  0% { background-position: 0 0; }
+  100% { background-position: 200px 200px; }
+}
+
+/* ── Canvas ── */
+#canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
   cursor: grab;
   overflow: hidden;
 }
@@ -41,627 +72,529 @@ html, body {
 #world {
   position: absolute;
   top:0; left:0;
-  /* Size set in JS based on viewport */
+  width: 100vw;
+  height: 100vh;
   transform-origin: 0 0;
   will-change: transform;
 }
 
-/* ── Photo Background ── */
-.board-bg {
+/* ── Portals (organic, not bubbles) ── */
+.portal {
   position: absolute;
-  inset: 0;
-  background-image: url('assets/IMG_1771.jpeg');
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.45) contrast(1.1);
-}
-
-/* ── Nodes (glass on photo) ── */
-.node {
-  position: absolute;
-  width: 240px; height: 240px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 2px solid rgba(250,248,243,0.25);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.node:hover {
-  transform: scale(1.08);
-  border-color: var(--accent-magenta);
-  box-shadow: 0 12px 40px rgba(217,70,239,0.25);
-}
-
-.node .label {
-  font-size: 26px;
-  font-weight: bold;
-  letter-spacing: 0.05em;
-  text-transform: lowercase;
-  margin-bottom: 6px;
-  color: var(--paper);
-  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-}
-
-.node .sub {
-  font-size: 13px;
-  color: rgba(250,248,243,0.7);
-  max-width: 180px;
-  line-height: 1.3;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-}
-
-/* Rough hand-drawn border effect */
-.node::before {
+/* Amorphous blob shape via irregular border-radius */
+.portal::before {
   content: '';
   position: absolute;
-  inset: -6px;
-  border-radius: 52% 48% 49% 51% / 48% 52% 51% 49%;
-  border: 2px solid rgba(42,34,27,0.15);
-  pointer-events: none;
+  inset: -30px;
+  border-radius: 40% 60% 55% 45% / 55% 45% 60% 40%;
+  background: rgba(255, 42, 109, 0.06);
+  border: 1px solid rgba(255, 42, 109, 0.15);
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  filter: blur(0px);
 }
 
-/* ── Center Node (centrois) ── */
-.node.center {
-  width: 300px; height: 300px;
-  background: rgba(217,70,239,0.25);
-  border-color: rgba(250,248,243,0.4);
-  box-shadow: 0 0 60px rgba(217,70,239,0.35), inset 0 0 30px rgba(217,70,239,0.1);
+.portal:hover::before {
+  background: rgba(255, 42, 109, 0.12);
+  border-color: rgba(255, 42, 109, 0.4);
+  box-shadow: 0 0 60px rgba(255, 42, 109, 0.2), inset 0 0 40px rgba(255, 42, 109, 0.05);
+  filter: blur(1px);
 }
-.node.center .label {
-  font-size: 38px;
+
+.portal .name {
+  position: relative;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--paper);
-}
-.node.center:hover {
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 80px rgba(6,182,212,0.35), inset 0 0 40px rgba(6,182,212,0.1);
+  color: var(--cream);
+  text-shadow: 0 0 20px rgba(5, 217, 232, 0.3);
+  transition: all 0.4s ease;
 }
 
-/* ── Child Nodes (level 2+) ── */
-.node.child {
-  width: 180px; height: 180px;
-  background: rgba(255,255,255,0.95);
+.portal .desc {
+  position: relative;
+  font-size: 11px;
+  font-weight: 300;
+  color: rgba(240, 230, 216, 0.5);
+  margin-top: 8px;
+  letter-spacing: 0.08em;
+  max-width: 160px;
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.4s ease;
+}
+
+.portal:hover .desc {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.portal:hover .name {
+  color: var(--cyan);
+  text-shadow: 0 0 30px rgba(5, 217, 232, 0.5);
+}
+
+/* Center portal (centrois) */
+.portal.center {
+  width: 280px;
+  height: 280px;
+}
+.portal.center .name {
+  font-size: 22px;
+  letter-spacing: 0.35em;
+  font-weight: 700;
+}
+.portal.center::before {
+  background: rgba(255, 42, 109, 0.1);
+  border: 1px solid rgba(255, 42, 109, 0.3);
+  box-shadow: 0 0 80px rgba(255, 42, 109, 0.15);
+}
+
+/* Level 0 */
+.portal.l0 {
+  width: 200px;
+  height: 200px;
+}
+
+/* Child portals */
+.portal.child {
+  width: 170px;
+  height: 170px;
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.5);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transform: scale(0.3);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.node.child.visible {
+.portal.child.visible {
   opacity: 1;
   pointer-events: auto;
   transform: scale(1);
 }
-.node.child .label { font-size: 18px; }
-.node.child .sub { font-size: 11px; }
 
-/* ── Connection Lines (SVG) ── */
+/* Lines */
 .connections {
   position: absolute;
   top:0; left:0;
   width:100%; height:100%;
   pointer-events: none;
+  z-index: -1;
 }
 .connections line {
-  stroke: var(--ink);
-  stroke-width: 2;
-  opacity: 0.3;
-  stroke-dasharray: 8 6;
+  stroke: rgba(255, 42, 109, 0.12);
+  stroke-width: 1;
+  stroke-dasharray: 4 8;
 }
 
-/* ── UI Overlays ── */
+/* ── UI ── */
 #ui {
   position: fixed;
-  top:0; left:0;
-  width:100%; height:100%;
+  inset: 0;
+  z-index: 100;
   pointer-events: none;
-  z-index: 1000;
 }
 #ui > * { pointer-events: auto; }
 
-.back-btn {
+.back {
   position: fixed;
-  top: 20px; left: 20px;
-  background: var(--paper);
-  border: 2px solid var(--ink);
-  padding: 10px 20px;
-  font-family: 'Patrick Hand', cursive;
-  font-size: 16px;
+  top: 24px; left: 24px;
+  background: transparent;
+  border: 1px solid rgba(240, 230, 216, 0.2);
+  color: var(--cream);
+  padding: 10px 22px;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  transform: translateX(-20px);
-  transition: all 0.3s ease;
-  box-shadow: 3px 3px 0 var(--ink);
+  transform: translateY(-10px);
+  transition: all 0.4s ease;
+  backdrop-filter: blur(10px);
 }
-.back-btn.show {
+.back.show {
   opacity: 1;
   pointer-events: auto;
-  transform: translateX(0);
+  transform: translateY(0);
 }
-.back-btn:hover {
-  background: var(--accent-magenta);
-  color: white;
+.back:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 20px rgba(5, 217, 232, 0.2);
 }
 
-.breadcrumb {
+.crumb {
   position: fixed;
-  top: 20px; left: 50%;
-  transform: translateX(-50%);
-  background: var(--paper);
-  border: 2px solid var(--ink);
-  padding: 8px 24px;
-  font-size: 14px;
-  letter-spacing: 0.1em;
-  text-transform: lowercase;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  box-shadow: 3px 3px 0 var(--ink);
-  white-space: nowrap;
-}
-.breadcrumb.show { opacity: 1; }
-
-/* ── Zoom Hint ── */
-.hint {
-  position: fixed;
-  bottom: 24px;
+  top: 24px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(26,22,18,0.9);
-  color: var(--paper);
-  padding: 10px 24px;
-  border-radius: 30px;
-  font-size: 14px;
-  letter-spacing: 0.05em;
-  pointer-events: none;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(240, 230, 216, 0.4);
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.4s ease;
+}
+.crumb.show { opacity: 1; }
+
+.hint {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: rgba(240, 230, 216, 0.35);
+  opacity: 0;
+  transition: opacity 1s ease;
 }
 .hint.show { opacity: 1; }
 
-/* ── Mobile ── */
+/* Mobile */
 @media (max-width: 768px) {
-  .node { width: 180px; height: 180px; }
-  .node.center { width: 220px; height: 220px; }
-  .node.center .label { font-size: 28px; }
-  .node .label { font-size: 20px; }
-  .node .sub { font-size: 12px; }
-  .node.child { width: 140px; height: 140px; }
+  .portal.center { width: 200px; height: 200px; }
+  .portal.center .name { font-size: 16px; }
+  .portal.l0 { width: 150px; height: 150px; }
+  .portal.l0 .name { font-size: 11px; }
+  .portal.child { width: 130px; height: 130px; }
 }
 </style>
 </head>
 <body>
 
+<div id="bg"></div>
+<div class="grain"></div>
+
 <div id="canvas">
   <div id="world">
-    <div class="board-bg"></div>
-
     <svg class="connections" id="connections"></svg>
 
-    <!-- LEVEL 0: Main Board -->
-    <div class="node center" data-level="0" data-id="centrois">
-      <div class="label">centrois</div>
-      <div class="sub">troy von breitenstein</div>
+    <!-- LEVEL 0 -->
+    <div class="portal center" data-level="0" data-id="centrois"
+         style="left:50%; top:50%; transform:translate(-50%,-50%);">
+      <div class="name">centrois</div>
+      <div class="desc">troy von breitenstein</div>
     </div>
 
-    <div class="node" data-level="0" data-id="airheads" data-parent="centrois">
-      <div class="label">airheads</div>
-      <div class="sub">1-of-1 art surf mats</div>
+    <div class="portal l0" data-level="0" data-id="airheads" data-parent="centrois"
+         style="left:22%; top:28%;">
+      <div class="name">airheads</div>
+      <div class="desc">1-of-1 art surf mats</div>
     </div>
 
-    <div class="node" data-level="0" data-id="works" data-parent="centrois">
-      <div class="label">works</div>
-      <div class="sub">portfolio hub</div>
+    <div class="portal l0" data-level="0" data-id="works" data-parent="centrois"
+         style="left:75%; top:32%;">
+      <div class="name">works</div>
+      <div class="desc">portfolio hub</div>
     </div>
 
-    <div class="node" data-level="0" data-id="bio" data-parent="centrois">
-      <div class="label">bio</div>
-      <div class="sub">edgewalker / artist</div>
+    <div class="portal l0" data-level="0" data-id="bio" data-parent="centrois"
+         style="left:18%; top:68%;">
+      <div class="name">bio</div>
+      <div class="desc">edgwalker / artist</div>
     </div>
 
-    <div class="node" data-level="0" data-id="ponderings" data-parent="centrois">
-      <div class="label">ponderings</div>
-      <div class="sub">philosophical writings</div>
+    <div class="portal l0" data-level="0" data-id="ponderings" data-parent="centrois"
+         style="left:78%; top:70%;">
+      <div class="name">ponderings</div>
+      <div class="desc">philosophical writings</div>
     </div>
 
-    <!-- LEVEL 1: Works children -->
-    <div class="node child" data-level="1" data-id="boarding" data-parent="works">
-      <div class="label">boarding</div>
-      <div class="sub">surf videos</div>
+    <!-- LEVEL 1: works -->
+    <div class="portal child" data-level="1" data-id="boarding" data-parent="works"
+         style="left:88%; top:15%;">
+      <div class="name">boarding</div>
+      <div class="desc">surf videos</div>
     </div>
 
-    <div class="node child" data-level="1" data-id="mixed-media" data-parent="works">
-      <div class="label">mixed media</div>
-      <div class="sub">digital + threads + visionary</div>
+    <div class="portal child" data-level="1" data-id="mixed-media" data-parent="works"
+         style="left:92%; top:42%;">
+      <div class="name">mixed media</div>
+      <div class="desc">digital + threads + visionary</div>
     </div>
 
-    <div class="node child" data-level="1" data-id="photography" data-parent="works">
-      <div class="label">photography</div>
-      <div class="sub">trips, stories, frames</div>
+    <div class="portal child" data-level="1" data-id="photography" data-parent="works"
+         style="left:85%; top:62%;">
+      <div class="name">photography</div>
+      <div class="desc">trips, stories, frames</div>
     </div>
 
-    <!-- LEVEL 2: Mixed Media children -->
-    <div class="node child" data-level="2" data-id="digital-art" data-parent="mixed-media">
-      <div class="label">digital art</div>
-      <div class="sub">psychedelic visuals</div>
+    <!-- LEVEL 2: mixed-media -->
+    <div class="portal child" data-level="2" data-id="digital-art" data-parent="mixed-media"
+         style="left:102%; top:30%;">
+      <div class="name">digital art</div>
+      <div class="desc">psychedelic visuals</div>
     </div>
 
-    <div class="node child" data-level="2" data-id="threads" data-parent="mixed-media">
-      <div class="label">threads</div>
-      <div class="sub">sewn art pieces</div>
+    <div class="portal child" data-level="2" data-id="threads" data-parent="mixed-media"
+         style="left:106%; top:48%;">
+      <div class="name">threads</div>
+      <div class="desc">sewn art pieces</div>
     </div>
 
-    <div class="node child" data-level="2" data-id="visionary" data-parent="mixed-media">
-      <div class="label">visionary</div>
-      <div class="sub">steiner / anthroposophy</div>
+    <div class="portal child" data-level="2" data-id="visionary" data-parent="mixed-media"
+         style="left:98%; top:58%;">
+      <div class="name">visionary</div>
+      <div class="desc">steiner / anthroposophy</div>
     </div>
 
-    <div class="node child" data-level="2" data-id="odd-creations" data-parent="mixed-media">
-      <div class="label">odd & creations</div>
-      <div class="sub">salt box, experiments</div>
+    <div class="portal child" data-level="2" data-id="odd-creations" data-parent="mixed-media"
+         style="left:108%; top:65%;">
+      <div class="name">odd & creations</div>
+      <div class="desc">salt box, experiments</div>
     </div>
 
   </div>
 </div>
 
 <div id="ui">
-  <button class="back-btn" id="backBtn">← back</button>
-  <div class="breadcrumb" id="breadcrumb">centrois</div>
-  <div class="hint show" id="hint">click a circle to zoom in · drag to pan · scroll to zoom</div>
+  <button class="back" id="back">← back</button>
+  <div class="crumb" id="crumb">centrois</div>
+  <div class="hint show" id="hint">click to zoom in · drag to pan · scroll to zoom</div>
 </div>
 
 <script>
 (function() {
   const canvas = document.getElementById('canvas');
   const world = document.getElementById('world');
-  const backBtn = document.getElementById('backBtn');
-  const breadcrumb = document.getElementById('breadcrumb');
+  const back = document.getElementById('back');
+  const crumb = document.getElementById('crumb');
   const hint = document.getElementById('hint');
   const connections = document.getElementById('connections');
 
-  // ── Layout: responsive Bristol board ──
-  // Board fills viewport with some padding. Nodes positioned proportionally.
+  // Camera
+  let cam = { x: 0, y: 0, z: 1 };
+  let animating = false;
+  let level = 0;
+  let path = ['centrois'];
 
-  function layoutNodes() {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    // Board size: viewport + breathing room on edges
-    const boardW = Math.max(vw * 1.4, 1200);
-    const boardH = Math.max(vh * 1.4, 900);
-    world.style.width = boardW + 'px';
-    world.style.height = boardH + 'px';
-
-    const cx = boardW / 2;
-    const cy = boardH / 2;
-
-    // Radius from center for level 0 nodes
-    const r0 = Math.min(vw, vh) * 0.28;
-
-    // Position nodes by angle
-    const nodes = {
-      centrois: { angle: 0, dist: 0, size: 'center' },
-      airheads: { angle: -2.1, dist: r0 },
-      works: { angle: -0.6, dist: r0 },
-      bio: { angle: 2.0, dist: r0 },
-      ponderings: { angle: 0.7, dist: r0 },
-    };
-
-    // Level 1 children (around works)
-    const r1 = Math.min(vw, vh) * 0.35;
-    const worksCx = cx + Math.cos(-0.6) * r0;
-    const worksCy = cy + Math.sin(-0.6) * r0;
-    nodes.boarding = { cx: worksCx, cy: worksCy, angle: -1.3, dist: r1 };
-    nodes['mixed-media'] = { cx: worksCx, cy: worksCy, angle: -0.3, dist: r1 };
-    nodes.photography = { cx: worksCx, cy: worksCy, angle: 0.8, dist: r1 };
-
-    // Level 2 children (around mixed-media)
-    const mmCx = worksCx + Math.cos(-0.3) * r1;
-    const mmCy = worksCy + Math.sin(-0.3) * r1;
-    const r2 = Math.min(vw, vh) * 0.30;
-    nodes['digital-art'] = { cx: mmCx, cy: mmCy, angle: -1.2, dist: r2 };
-    nodes.threads = { cx: mmCx, cy: mmCy, angle: -0.4, dist: r2 };
-    nodes.visionary = { cx: mmCx, cy: mmCy, angle: 0.4, dist: r2 };
-    nodes['odd-creations'] = { cx: mmCx, cy: mmCy, angle: 1.2, dist: r2 };
-
-    // Apply positions
-    document.querySelectorAll('.node').forEach(node => {
-      const id = node.dataset.id;
-      const layout = nodes[id];
-      if (!layout) return;
-
-      let nx, ny;
-      if (layout.size === 'center') {
-        nx = cx - node.offsetWidth / 2;
-        ny = cy - node.offsetHeight / 2;
-      } else if (layout.cx !== undefined) {
-        nx = layout.cx + Math.cos(layout.angle) * layout.dist - node.offsetWidth / 2;
-        ny = layout.cy + Math.sin(layout.angle) * layout.dist - node.offsetHeight / 2;
-      } else {
-        nx = cx + Math.cos(layout.angle) * layout.dist - node.offsetWidth / 2;
-        ny = cy + Math.sin(layout.angle) * layout.dist - node.offsetHeight / 2;
-      }
-
-      node.style.left = nx + 'px';
-      node.style.top = ny + 'px';
-    });
-
-    return { boardW, boardH, cx, cy };
-  }
-
-  const layout = layoutNodes();
-
-  // ── Camera state ──
-  let camera = { x: 0, y: 0, z: 1 };
-  let isAnimating = false;
-  let currentLevel = 0;
-  let activePath = ['centrois'];
-
-  // Pan state
-  let isDragging = false;
+  // Pan
+  let dragging = false;
   let dragStart = { x:0, y:0 };
   let camStart = { x:0, y:0 };
 
-  function applyCamera() {
-    const tx = camera.x * camera.z;
-    const ty = camera.y * camera.z;
-    world.style.transform = `translate(${tx}px, ${ty}px) scale(${camera.z})`;
+  function apply() {
+    world.style.transform = `translate(${cam.x * cam.z}px, ${cam.y * cam.z}px) scale(${cam.z})`;
   }
 
-  function fitBoardToScreen() {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const boardW = layout.boardW;
-    const boardH = layout.boardH;
-
-    // Fit entire board in viewport with slight padding
-    const scaleX = (vw * 0.85) / boardW;
-    const scaleY = (vh * 0.85) / boardH;
-    const z = Math.min(scaleX, scaleY);
-
-    // Center the board
-    const x = (vw - boardW * z) / (2 * z);
-    const y = (vh - boardH * z) / (2 * z);
-
-    camera = { x, y, z };
-    applyCamera();
+  function fit() {
+    cam = { x: 0, y: 0, z: 1 };
+    apply();
   }
 
-  function animateTo(newCam, duration = 700) {
-    if (isAnimating) return;
-    isAnimating = true;
-    const startX = camera.x;
-    const startY = camera.y;
-    const startZ = camera.z;
+  function easeTo(target, dur = 900) {
+    if (animating) return;
+    animating = true;
+    const sx = cam.x, sy = cam.y, sz = cam.z;
     const t0 = performance.now();
-
     function tick(now) {
-      const t = Math.min((now - t0) / duration, 1);
-      const ease = 1 - Math.pow(1 - t, 3);
-      camera.x = startX + (newCam.x - startX) * ease;
-      camera.y = startY + (newCam.y - startY) * ease;
-      camera.z = startZ + (newCam.z - startZ) * ease;
-      applyCamera();
+      const t = Math.min((now - t0) / dur, 1);
+      const e = 1 - Math.pow(1 - t, 4); // smooth ease
+      cam.x = sx + (target.x - sx) * e;
+      cam.y = sy + (target.y - sy) * e;
+      cam.z = sz + (target.z - sz) * e;
+      apply();
       if (t < 1) requestAnimationFrame(tick);
-      else { isAnimating = false; updateVisibility(); }
+      else { animating = false; updateVis(); }
     }
     requestAnimationFrame(tick);
   }
 
-  function getNodeCenter(node) {
-    const left = parseFloat(node.style.left) + node.offsetWidth / 2;
-    const top = parseFloat(node.style.top) + node.offsetHeight / 2;
-    return { x: left, y: top };
+  function centerOf(el) {
+    const rect = el.getBoundingClientRect();
+    const worldRect = world.getBoundingClientRect();
+    // Get position relative to world at current scale
+    return {
+      x: (rect.left - worldRect.left) / cam.z + rect.width / (2 * cam.z),
+      y: (rect.top - worldRect.top) / cam.z + rect.height / (2 * cam.z)
+    };
   }
 
-  function zoomToNode(node) {
-    const center = getNodeCenter(node);
-    const vw = canvas.offsetWidth;
-    const vh = canvas.offsetHeight;
-    const level = parseInt(node.dataset.level || '0');
+  function zoomTo(el) {
+    const c = centerOf(el);
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const lv = parseInt(el.dataset.level || '0');
 
-    // Zoom in progressively
-    const zoomLevels = [1, 2.2, 4.5];
-    const targetZ = zoomLevels[Math.min(level + 1, zoomLevels.length - 1)];
+    // AGGRESSIVE zoom
+    const zooms = [1, 4.5, 12];
+    const tz = zooms[Math.min(lv + 1, zooms.length - 1)];
 
-    const targetX = (vw / 2) / targetZ - center.x;
-    const targetY = (vh / 2) / targetZ - center.y;
+    easeTo({
+      x: (vw / 2) / tz - c.x,
+      y: (vh / 2) / tz - c.y,
+      z: tz
+    });
 
-    animateTo({ x: targetX, y: targetY, z: targetZ });
-
-    const id = node.dataset.id;
-    if (!activePath.includes(id)) activePath.push(id);
-    else activePath = activePath.slice(0, activePath.indexOf(id) + 1);
-    currentLevel = level + 1;
+    const id = el.dataset.id;
+    if (!path.includes(id)) path.push(id);
+    else path = path.slice(0, path.indexOf(id) + 1);
+    level = lv + 1;
     updateUI();
   }
 
   function zoomOut() {
-    if (activePath.length <= 1) {
-      fitBoardToScreen();
-      activePath = ['centrois'];
-      currentLevel = 0;
+    if (path.length <= 1) {
+      fit();
+      path = ['centrois'];
+      level = 0;
     } else {
-      activePath.pop();
-      const parentId = activePath[activePath.length - 1];
-      const parent = document.querySelector(`[data-id="${parentId}"]`);
-      if (parent) {
-        const center = getNodeCenter(parent);
-        const vw = canvas.offsetWidth;
-        const vh = canvas.offsetHeight;
-        const zoomLevels = [1, 2.2, 4.5];
-        const targetZ = zoomLevels[Math.max(currentLevel - 2, 0)];
-        const targetX = (vw / 2) / targetZ - center.x;
-        const targetY = (vh / 2) / targetZ - center.y;
-        animateTo({ x: targetX, y: targetY, z: targetZ });
-        currentLevel = Math.max(currentLevel - 1, 0);
+      path.pop();
+      const pid = path[path.length - 1];
+      const pel = document.querySelector(`[data-id="${pid}"]`);
+      if (pel) {
+        const c = centerOf(pel);
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const zooms = [1, 4.5, 12];
+        const tz = zooms[Math.max(level - 2, 0)];
+        easeTo({
+          x: (vw / 2) / tz - c.x,
+          y: (vh / 2) / tz - c.y,
+          z: tz
+        });
+        level = Math.max(level - 1, 0);
       }
     }
     updateUI();
   }
 
   function updateUI() {
-    if (activePath.length > 1) backBtn.classList.add('show');
-    else backBtn.classList.remove('show');
-
-    if (activePath.length > 1) {
-      breadcrumb.textContent = activePath.join(' → ');
-      breadcrumb.classList.add('show');
+    back.classList.toggle('show', path.length > 1);
+    if (path.length > 1) {
+      crumb.textContent = path.join(' → ');
+      crumb.classList.add('show');
     } else {
-      breadcrumb.classList.remove('show');
+      crumb.classList.remove('show');
     }
-
     hint.classList.remove('show');
   }
 
-  function updateVisibility() {
-    document.querySelectorAll('.node').forEach(node => {
-      const level = parseInt(node.dataset.level || '0');
-      const isChild = node.classList.contains('child');
-      if (isChild) {
-        const parentId = node.dataset.parent;
-        const parentActive = activePath.includes(parentId);
-        if (parentActive && level <= currentLevel + 1) {
-          node.classList.add('visible');
-        } else {
-          node.classList.remove('visible');
-        }
+  function updateVis() {
+    document.querySelectorAll('.portal').forEach(p => {
+      const lv = parseInt(p.dataset.level || '0');
+      if (lv === 0) return; // always show level 0
+      const pid = p.dataset.parent;
+      const active = path.includes(pid);
+      if (active && lv <= level + 1) {
+        p.classList.add('visible');
+      } else {
+        p.classList.remove('visible');
       }
     });
-    drawConnections();
+    drawLines();
   }
 
-  function drawConnections() {
-    let svg = '';
-    const visibleNodes = Array.from(document.querySelectorAll('.node')).filter(n => {
-      if (n.classList.contains('child')) return n.classList.contains('visible');
-      return true;
+  function drawLines() {
+    let s = '';
+    document.querySelectorAll('.portal').forEach(p => {
+      const pid = p.dataset.parent;
+      if (!pid) return;
+      const par = document.querySelector(`[data-id="${pid}"]`);
+      if (!par) return;
+      if (p.classList.contains('child') && !p.classList.contains('visible')) return;
+      const c1 = centerOf(par);
+      const c2 = centerOf(p);
+      s += `<line x1="${c1.x}" y1="${c1.y}" x2="${c2.x}" y2="${c2.y}" />`;
     });
-
-    visibleNodes.forEach(node => {
-      const parentId = node.dataset.parent;
-      if (!parentId) return;
-      const parent = document.querySelector(`[data-id="${parentId}"]`);
-      if (!parent) return;
-      const c1 = getNodeCenter(parent);
-      const c2 = getNodeCenter(node);
-      svg += `<line x1="${c1.x}" y1="${c1.y}" x2="${c2.x}" y2="${c2.y}" />`;
-    });
-
-    connections.innerHTML = svg;
+    connections.innerHTML = s;
   }
 
-  // ── Events ──
-  document.querySelectorAll('.node').forEach(node => {
-    node.addEventListener('click', e => {
+  // Click portals
+  document.querySelectorAll('.portal').forEach(p => {
+    p.addEventListener('click', e => {
       e.stopPropagation();
-      if (isDragging) return;
-      zoomToNode(node);
+      if (dragging) return;
+      zoomTo(p);
     });
   });
 
-  backBtn.addEventListener('click', zoomOut);
+  back.addEventListener('click', zoomOut);
 
+  // Drag
   canvas.addEventListener('mousedown', e => {
-    isDragging = false;
+    dragging = false;
     dragStart = { x: e.clientX, y: e.clientY };
-    camStart = { x: camera.x, y: camera.y };
+    camStart = { x: cam.x, y: cam.y };
     canvas.classList.add('grabbing');
   });
-
   window.addEventListener('mousemove', e => {
     if (e.buttons !== 1) return;
     const dx = e.clientX - dragStart.x;
     const dy = e.clientY - dragStart.y;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) isDragging = true;
-    camera.x = camStart.x + dx / camera.z;
-    camera.y = camStart.y + dy / camera.z;
-    applyCamera();
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragging = true;
+    cam.x = camStart.x + dx / cam.z;
+    cam.y = camStart.y + dy / cam.z;
+    apply();
   });
+  window.addEventListener('mouseup', () => canvas.classList.remove('grabbing'));
 
-  window.addEventListener('mouseup', () => {
-    canvas.classList.remove('grabbing');
-  });
-
+  // Scroll zoom
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
-    const zoomSpeed = 0.0015;
-    const newZ = Math.max(0.3, Math.min(5.0, camera.z - e.deltaY * zoomSpeed));
-
+    const speed = 0.001;
+    const nz = Math.max(0.5, Math.min(15, cam.z - e.deltaY * speed));
     const rect = canvas.getBoundingClientRect();
-    const mx = (e.clientX - rect.left) / camera.z - camera.x;
-    const my = (e.clientY - rect.top) / camera.z - camera.y;
-
-    camera.x = -mx + (mx + camera.x) * (camera.z / newZ);
-    camera.y = -my + (my + camera.y) * (camera.z / newZ);
-    camera.z = newZ;
-    applyCamera();
+    const mx = (e.clientX - rect.left) / cam.z - cam.x;
+    const my = (e.clientY - rect.top) / cam.z - cam.y;
+    cam.x = -mx + (mx + cam.x) * (cam.z / nz);
+    cam.y = -my + (my + cam.y) * (cam.z / nz);
+    cam.z = nz;
+    apply();
   }, { passive: false });
 
-  // Touch support
-  let lastTouchDist = 0;
-  let lastTouchCenter = { x:0, y:0 };
-
+  // Touch
+  let lastD = 0, lastC = {x:0,y:0};
   canvas.addEventListener('touchstart', e => {
     if (e.touches.length === 1) {
       dragStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      camStart = { x: camera.x, y: camera.y };
+      camStart = { x: cam.x, y: cam.y };
     } else if (e.touches.length === 2) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
-      lastTouchDist = Math.hypot(dx, dy);
-      lastTouchCenter = {
-        x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
-        y: (e.touches[0].clientY + e.touches[1].clientY) / 2
-      };
+      lastD = Math.hypot(dx, dy);
+      lastC = { x: (e.touches[0].clientX+e.touches[1].clientX)/2, y: (e.touches[0].clientY+e.touches[1].clientY)/2 };
     }
   }, { passive: false });
-
   canvas.addEventListener('touchmove', e => {
     e.preventDefault();
     if (e.touches.length === 1) {
       const dx = e.touches[0].clientX - dragStart.x;
       const dy = e.touches[0].clientY - dragStart.y;
-      camera.x = camStart.x + dx / camera.z;
-      camera.y = camStart.y + dy / camera.z;
-      applyCamera();
+      cam.x = camStart.x + dx / cam.z;
+      cam.y = camStart.y + dy / cam.z;
+      apply();
     } else if (e.touches.length === 2) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       const dist = Math.hypot(dx, dy);
-      const scaleChange = dist / lastTouchDist;
-      lastTouchDist = dist;
-      const newZ = Math.max(0.3, Math.min(5.0, camera.z * scaleChange));
-
+      const sc = dist / lastD;
+      lastD = dist;
+      const nz = Math.max(0.5, Math.min(15, cam.z * sc));
       const rect = canvas.getBoundingClientRect();
-      const mx = (lastTouchCenter.x - rect.left) / camera.z - camera.x;
-      const my = (lastTouchCenter.y - rect.top) / camera.z - camera.y;
-      camera.x = -mx + (mx + camera.x) * (camera.z / newZ);
-      camera.y = -my + (my + camera.y) * (camera.z / newZ);
-      camera.z = newZ;
-      applyCamera();
+      const mx = (lastC.x - rect.left) / cam.z - cam.x;
+      const my = (lastC.y - rect.top) / cam.z - cam.y;
+      cam.x = -mx + (mx + cam.x) * (cam.z / nz);
+      cam.y = -my + (my + cam.y) * (cam.z / nz);
+      cam.z = nz;
+      apply();
     }
   }, { passive: false });
 
-  // ── Init ──
-  fitBoardToScreen();
-  drawConnections();
-
-  window.addEventListener('resize', () => {
-    const newLayout = layoutNodes();
-    fitBoardToScreen();
-    drawConnections();
-  });
-
+  // Init
+  fit();
+  drawLines();
+  window.addEventListener('resize', () => { fit(); drawLines(); });
 })();
 </script>
 </body>
