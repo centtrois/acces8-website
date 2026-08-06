@@ -46,40 +46,39 @@ html, body {
   will-change: transform;
 }
 
-/* ── Bristol Board Texture ── */
+/* ── Photo Background ── */
 .board-bg {
   position: absolute;
   inset: 0;
-  background:
-    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,0,0,0.03) 40px),
-    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0,0,0,0.03) 40px),
-    var(--paper);
-  border: 4px solid var(--ink);
-  box-shadow:
-    inset 0 0 80px rgba(0,0,0,0.05),
-    0 20px 60px rgba(0,0,0,0.3);
+  background-image: url('assets/IMG_1771.jpeg');
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.45) contrast(1.1);
 }
 
-/* ── Nodes (hand-drawn circles) ── */
+/* ── Nodes (glass on photo) ── */
 .node {
   position: absolute;
   width: 240px; height: 240px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.85);
-  border: 3px solid var(--ink);
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid rgba(250,248,243,0.25);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 4px 4px 0 var(--ink);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 
 .node:hover {
   transform: scale(1.08);
-  box-shadow: 6px 6px 0 var(--accent-magenta);
+  border-color: var(--accent-magenta);
+  box-shadow: 0 12px 40px rgba(217,70,239,0.25);
 }
 
 .node .label {
@@ -88,13 +87,16 @@ html, body {
   letter-spacing: 0.05em;
   text-transform: lowercase;
   margin-bottom: 6px;
+  color: var(--paper);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
 .node .sub {
   font-size: 13px;
-  color: var(--dim);
+  color: rgba(250,248,243,0.7);
   max-width: 180px;
   line-height: 1.3;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }
 
 /* Rough hand-drawn border effect */
@@ -110,18 +112,19 @@ html, body {
 /* ── Center Node (centrois) ── */
 .node.center {
   width: 300px; height: 300px;
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--paper);
-  box-shadow: 6px 6px 0 var(--accent-magenta), -3px -3px 0 var(--accent-cyan);
+  background: rgba(217,70,239,0.25);
+  border-color: rgba(250,248,243,0.4);
+  box-shadow: 0 0 60px rgba(217,70,239,0.35), inset 0 0 30px rgba(217,70,239,0.1);
 }
 .node.center .label {
   font-size: 38px;
   text-transform: uppercase;
   letter-spacing: 0.15em;
+  color: var(--paper);
 }
 .node.center:hover {
-  box-shadow: 8px 8px 0 var(--accent-cyan), -4px -4px 0 var(--accent-magenta);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 80px rgba(6,182,212,0.35), inset 0 0 40px rgba(6,182,212,0.1);
 }
 
 /* ── Child Nodes (level 2+) ── */
