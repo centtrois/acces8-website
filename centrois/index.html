@@ -41,7 +41,7 @@ html, body {
 #world {
   position: absolute;
   top:0; left:0;
-  width:5000px; height:5000px;
+  /* Size set in JS based on viewport */
   transform-origin: 0 0;
   will-change: transform;
 }
@@ -63,7 +63,7 @@ html, body {
 /* ── Nodes (hand-drawn circles) ── */
 .node {
   position: absolute;
-  width: 280px; height: 280px;
+  width: 240px; height: 240px;
   border-radius: 50%;
   background: rgba(255,255,255,0.85);
   border: 3px solid var(--ink);
@@ -83,17 +83,17 @@ html, body {
 }
 
 .node .label {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: bold;
   letter-spacing: 0.05em;
   text-transform: lowercase;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .node .sub {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--dim);
-  max-width: 200px;
+  max-width: 180px;
   line-height: 1.3;
 }
 
@@ -109,14 +109,14 @@ html, body {
 
 /* ── Center Node (centrois) ── */
 .node.center {
-  width: 360px; height: 360px;
+  width: 300px; height: 300px;
   background: var(--ink);
   color: var(--paper);
   border-color: var(--paper);
   box-shadow: 6px 6px 0 var(--accent-magenta), -3px -3px 0 var(--accent-cyan);
 }
 .node.center .label {
-  font-size: 42px;
+  font-size: 38px;
   text-transform: uppercase;
   letter-spacing: 0.15em;
 }
@@ -124,9 +124,9 @@ html, body {
   box-shadow: 8px 8px 0 var(--accent-cyan), -4px -4px 0 var(--accent-magenta);
 }
 
-/* ── Child Nodes (level 2) ── */
+/* ── Child Nodes (level 2+) ── */
 .node.child {
-  width: 200px; height: 200px;
+  width: 180px; height: 180px;
   background: rgba(255,255,255,0.95);
   opacity: 0;
   pointer-events: none;
@@ -138,8 +138,8 @@ html, body {
   pointer-events: auto;
   transform: scale(1);
 }
-.node.child .label { font-size: 20px; }
-.node.child .sub { font-size: 12px; }
+.node.child .label { font-size: 18px; }
+.node.child .sub { font-size: 11px; }
 
 /* ── Connection Lines (SVG) ── */
 .connections {
@@ -227,12 +227,12 @@ html, body {
 
 /* ── Mobile ── */
 @media (max-width: 768px) {
-  .node { width: 200px; height: 200px; }
-  .node.center { width: 260px; height: 260px; }
+  .node { width: 180px; height: 180px; }
+  .node.center { width: 220px; height: 220px; }
   .node.center .label { font-size: 28px; }
   .node .label { font-size: 20px; }
   .node .sub { font-size: 12px; }
-  .node.child { width: 160px; height: 160px; }
+  .node.child { width: 140px; height: 140px; }
 }
 </style>
 </head>
@@ -245,75 +245,64 @@ html, body {
     <svg class="connections" id="connections"></svg>
 
     <!-- LEVEL 0: Main Board -->
-    <div class="node center" data-level="0" data-id="centrois" style="left:2310px; top:2310px;">
+    <div class="node center" data-level="0" data-id="centrois">
       <div class="label">centrois</div>
       <div class="sub">troy von breitenstein</div>
     </div>
 
-    <div class="node" data-level="0" data-id="airheads" data-parent="centrois"
-         style="left:1800px; top:1900px;">
+    <div class="node" data-level="0" data-id="airheads" data-parent="centrois">
       <div class="label">airheads</div>
       <div class="sub">1-of-1 art surf mats</div>
     </div>
 
-    <div class="node" data-level="0" data-id="works" data-parent="centrois"
-         style="left:2800px; top:1850px;">
+    <div class="node" data-level="0" data-id="works" data-parent="centrois">
       <div class="label">works</div>
       <div class="sub">portfolio hub</div>
     </div>
 
-    <div class="node" data-level="0" data-id="bio" data-parent="centrois"
-         style="left:2000px; top:2700px;">
+    <div class="node" data-level="0" data-id="bio" data-parent="centrois">
       <div class="label">bio</div>
       <div class="sub">edgewalker / artist</div>
     </div>
 
-    <div class="node" data-level="0" data-id="ponderings" data-parent="centrois"
-         style="left:2750px; top:2650px;">
+    <div class="node" data-level="0" data-id="ponderings" data-parent="centrois">
       <div class="label">ponderings</div>
       <div class="sub">philosophical writings</div>
     </div>
 
     <!-- LEVEL 1: Works children -->
-    <div class="node child" data-level="1" data-id="boarding" data-parent="works"
-         style="left:3400px; top:1600px;">
+    <div class="node child" data-level="1" data-id="boarding" data-parent="works">
       <div class="label">boarding</div>
       <div class="sub">surf videos</div>
     </div>
 
-    <div class="node child" data-level="1" data-id="mixed-media" data-parent="works"
-         style="left:3550px; top:2100px;">
+    <div class="node child" data-level="1" data-id="mixed-media" data-parent="works">
       <div class="label">mixed media</div>
       <div class="sub">digital + threads + visionary</div>
     </div>
 
-    <div class="node child" data-level="1" data-id="photography" data-parent="works"
-         style="left:3300px; top:1200px;">
+    <div class="node child" data-level="1" data-id="photography" data-parent="works">
       <div class="label">photography</div>
       <div class="sub">trips, stories, frames</div>
     </div>
 
     <!-- LEVEL 2: Mixed Media children -->
-    <div class="node child" data-level="2" data-id="digital-art" data-parent="mixed-media"
-         style="left:4100px; top:1900px;">
+    <div class="node child" data-level="2" data-id="digital-art" data-parent="mixed-media">
       <div class="label">digital art</div>
       <div class="sub">psychedelic visuals</div>
     </div>
 
-    <div class="node child" data-level="2" data-id="threads" data-parent="mixed-media"
-         style="left:4200px; top:2300px;">
+    <div class="node child" data-level="2" data-id="threads" data-parent="mixed-media">
       <div class="label">threads</div>
       <div class="sub">sewn art pieces</div>
     </div>
 
-    <div class="node child" data-level="2" data-id="visionary" data-parent="mixed-media"
-         style="left:4000px; top:1500px;">
+    <div class="node child" data-level="2" data-id="visionary" data-parent="mixed-media">
       <div class="label">visionary</div>
       <div class="sub">steiner / anthroposophy</div>
     </div>
 
-    <div class="node child" data-level="2" data-id="odd-creations" data-parent="mixed-media"
-         style="left:4400px; top:2100px;">
+    <div class="node child" data-level="2" data-id="odd-creations" data-parent="mixed-media">
       <div class="label">odd & creations</div>
       <div class="sub">salt box, experiments</div>
     </div>
@@ -336,9 +325,80 @@ html, body {
   const hint = document.getElementById('hint');
   const connections = document.getElementById('connections');
 
-  // Camera state
-  let camera = { x: -100, y: -100, z: 0.22 };
-  let targetCamera = { x: -100, y: -100, z: 0.22 };
+  // ── Layout: responsive Bristol board ──
+  // Board fills viewport with some padding. Nodes positioned proportionally.
+
+  function layoutNodes() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // Board size: viewport + breathing room on edges
+    const boardW = Math.max(vw * 1.4, 1200);
+    const boardH = Math.max(vh * 1.4, 900);
+    world.style.width = boardW + 'px';
+    world.style.height = boardH + 'px';
+
+    const cx = boardW / 2;
+    const cy = boardH / 2;
+
+    // Radius from center for level 0 nodes
+    const r0 = Math.min(vw, vh) * 0.28;
+
+    // Position nodes by angle
+    const nodes = {
+      centrois: { angle: 0, dist: 0, size: 'center' },
+      airheads: { angle: -2.1, dist: r0 },
+      works: { angle: -0.6, dist: r0 },
+      bio: { angle: 2.0, dist: r0 },
+      ponderings: { angle: 0.7, dist: r0 },
+    };
+
+    // Level 1 children (around works)
+    const r1 = Math.min(vw, vh) * 0.35;
+    const worksCx = cx + Math.cos(-0.6) * r0;
+    const worksCy = cy + Math.sin(-0.6) * r0;
+    nodes.boarding = { cx: worksCx, cy: worksCy, angle: -1.3, dist: r1 };
+    nodes['mixed-media'] = { cx: worksCx, cy: worksCy, angle: -0.3, dist: r1 };
+    nodes.photography = { cx: worksCx, cy: worksCy, angle: 0.8, dist: r1 };
+
+    // Level 2 children (around mixed-media)
+    const mmCx = worksCx + Math.cos(-0.3) * r1;
+    const mmCy = worksCy + Math.sin(-0.3) * r1;
+    const r2 = Math.min(vw, vh) * 0.30;
+    nodes['digital-art'] = { cx: mmCx, cy: mmCy, angle: -1.2, dist: r2 };
+    nodes.threads = { cx: mmCx, cy: mmCy, angle: -0.4, dist: r2 };
+    nodes.visionary = { cx: mmCx, cy: mmCy, angle: 0.4, dist: r2 };
+    nodes['odd-creations'] = { cx: mmCx, cy: mmCy, angle: 1.2, dist: r2 };
+
+    // Apply positions
+    document.querySelectorAll('.node').forEach(node => {
+      const id = node.dataset.id;
+      const layout = nodes[id];
+      if (!layout) return;
+
+      let nx, ny;
+      if (layout.size === 'center') {
+        nx = cx - node.offsetWidth / 2;
+        ny = cy - node.offsetHeight / 2;
+      } else if (layout.cx !== undefined) {
+        nx = layout.cx + Math.cos(layout.angle) * layout.dist - node.offsetWidth / 2;
+        ny = layout.cy + Math.sin(layout.angle) * layout.dist - node.offsetHeight / 2;
+      } else {
+        nx = cx + Math.cos(layout.angle) * layout.dist - node.offsetWidth / 2;
+        ny = cy + Math.sin(layout.angle) * layout.dist - node.offsetHeight / 2;
+      }
+
+      node.style.left = nx + 'px';
+      node.style.top = ny + 'px';
+    });
+
+    return { boardW, boardH, cx, cy };
+  }
+
+  const layout = layoutNodes();
+
+  // ── Camera state ──
+  let camera = { x: 0, y: 0, z: 1 };
   let isAnimating = false;
   let currentLevel = 0;
   let activePath = ['centrois'];
@@ -348,17 +408,32 @@ html, body {
   let dragStart = { x:0, y:0 };
   let camStart = { x:0, y:0 };
 
-  // World center
-  const CENTER_X = 2500;
-  const CENTER_Y = 2500;
-
   function applyCamera() {
     const tx = camera.x * camera.z;
     const ty = camera.y * camera.z;
     world.style.transform = `translate(${tx}px, ${ty}px) scale(${camera.z})`;
   }
 
-  function animateTo(newCam, duration = 800) {
+  function fitBoardToScreen() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const boardW = layout.boardW;
+    const boardH = layout.boardH;
+
+    // Fit entire board in viewport with slight padding
+    const scaleX = (vw * 0.85) / boardW;
+    const scaleY = (vh * 0.85) / boardH;
+    const z = Math.min(scaleX, scaleY);
+
+    // Center the board
+    const x = (vw - boardW * z) / (2 * z);
+    const y = (vh - boardH * z) / (2 * z);
+
+    camera = { x, y, z };
+    applyCamera();
+  }
+
+  function animateTo(newCam, duration = 700) {
     if (isAnimating) return;
     isAnimating = true;
     const startX = camera.x;
@@ -368,7 +443,7 @@ html, body {
 
     function tick(now) {
       const t = Math.min((now - t0) / duration, 1);
-      const ease = 1 - Math.pow(1 - t, 3); // ease-out cubic
+      const ease = 1 - Math.pow(1 - t, 3);
       camera.x = startX + (newCam.x - startX) * ease;
       camera.y = startY + (newCam.y - startY) * ease;
       camera.z = startZ + (newCam.z - startZ) * ease;
@@ -391,31 +466,25 @@ html, body {
     const vh = canvas.offsetHeight;
     const level = parseInt(node.dataset.level || '0');
 
-    // Determine zoom level based on depth
-    const zoomLevels = [0.22, 0.55, 1.1];
+    // Zoom in progressively
+    const zoomLevels = [1, 2.2, 4.5];
     const targetZ = zoomLevels[Math.min(level + 1, zoomLevels.length - 1)];
 
-    // Calculate camera position to center the node
     const targetX = (vw / 2) / targetZ - center.x;
     const targetY = (vh / 2) / targetZ - center.y;
 
     animateTo({ x: targetX, y: targetY, z: targetZ });
 
-    // Update path
     const id = node.dataset.id;
-    if (!activePath.includes(id)) {
-      activePath.push(id);
-    } else {
-      activePath = activePath.slice(0, activePath.indexOf(id) + 1);
-    }
+    if (!activePath.includes(id)) activePath.push(id);
+    else activePath = activePath.slice(0, activePath.indexOf(id) + 1);
     currentLevel = level + 1;
     updateUI();
   }
 
   function zoomOut() {
     if (activePath.length <= 1) {
-      // Reset to overview
-      animateTo({ x: -100, y: -100, z: 0.22 });
+      fitBoardToScreen();
       activePath = ['centrois'];
       currentLevel = 0;
     } else {
@@ -426,7 +495,7 @@ html, body {
         const center = getNodeCenter(parent);
         const vw = canvas.offsetWidth;
         const vh = canvas.offsetHeight;
-        const zoomLevels = [0.22, 0.55, 1.1];
+        const zoomLevels = [1, 2.2, 4.5];
         const targetZ = zoomLevels[Math.max(currentLevel - 2, 0)];
         const targetX = (vw / 2) / targetZ - center.x;
         const targetY = (vh / 2) / targetZ - center.y;
@@ -438,11 +507,9 @@ html, body {
   }
 
   function updateUI() {
-    // Back button
     if (activePath.length > 1) backBtn.classList.add('show');
     else backBtn.classList.remove('show');
 
-    // Breadcrumb
     if (activePath.length > 1) {
       breadcrumb.textContent = activePath.join(' → ');
       breadcrumb.classList.add('show');
@@ -450,7 +517,6 @@ html, body {
       breadcrumb.classList.remove('show');
     }
 
-    // Hide hint after first interaction
     hint.classList.remove('show');
   }
 
@@ -459,7 +525,6 @@ html, body {
       const level = parseInt(node.dataset.level || '0');
       const isChild = node.classList.contains('child');
       if (isChild) {
-        // Show children at current level or below if parent is active
         const parentId = node.dataset.parent;
         const parentActive = activePath.includes(parentId);
         if (parentActive && level <= currentLevel + 1) {
@@ -493,8 +558,6 @@ html, body {
   }
 
   // ── Events ──
-
-  // Click nodes
   document.querySelectorAll('.node').forEach(node => {
     node.addEventListener('click', e => {
       e.stopPropagation();
@@ -503,10 +566,8 @@ html, body {
     });
   });
 
-  // Back button
   backBtn.addEventListener('click', zoomOut);
 
-  // Drag to pan
   canvas.addEventListener('mousedown', e => {
     isDragging = false;
     dragStart = { x: e.clientX, y: e.clientY };
@@ -528,13 +589,11 @@ html, body {
     canvas.classList.remove('grabbing');
   });
 
-  // Scroll to zoom
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
-    const zoomSpeed = 0.001;
-    const newZ = Math.max(0.1, Math.min(2.0, camera.z - e.deltaY * zoomSpeed));
+    const zoomSpeed = 0.0015;
+    const newZ = Math.max(0.3, Math.min(5.0, camera.z - e.deltaY * zoomSpeed));
 
-    // Zoom toward mouse position
     const rect = canvas.getBoundingClientRect();
     const mx = (e.clientX - rect.left) / camera.z - camera.x;
     const my = (e.clientY - rect.top) / camera.z - camera.y;
@@ -578,7 +637,7 @@ html, body {
       const dist = Math.hypot(dx, dy);
       const scaleChange = dist / lastTouchDist;
       lastTouchDist = dist;
-      const newZ = Math.max(0.1, Math.min(2.0, camera.z * scaleChange));
+      const newZ = Math.max(0.3, Math.min(5.0, camera.z * scaleChange));
 
       const rect = canvas.getBoundingClientRect();
       const mx = (lastTouchCenter.x - rect.left) / camera.z - camera.x;
@@ -590,9 +649,15 @@ html, body {
     }
   }, { passive: false });
 
-  // Init
-  applyCamera();
+  // ── Init ──
+  fitBoardToScreen();
   drawConnections();
+
+  window.addEventListener('resize', () => {
+    const newLayout = layoutNodes();
+    fitBoardToScreen();
+    drawConnections();
+  });
 
 })();
 </script>
